@@ -1,12 +1,11 @@
-package listeners;
+package app.listeners;
 
+import app.View;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import view.View;
 
-
-public class FrameListener extends WindowAdapter{
+public class FrameListener extends WindowAdapter {
     private View view;
 
     public FrameListener(View view) {
@@ -14,7 +13,7 @@ public class FrameListener extends WindowAdapter{
     }
 
     @Override
-    public void windowClosing(WindowEvent e) {
+    public void windowClosing(WindowEvent windowEvent) {
         view.exit();
     }
 }

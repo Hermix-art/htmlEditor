@@ -1,6 +1,6 @@
-package listeners;
+package app.listeners;
 
-import view.View;
+import app.View;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
