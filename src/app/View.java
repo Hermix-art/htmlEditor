@@ -18,8 +18,17 @@ public class View extends JFrame implements ActionListener {
     public Controller getController() {
         return controller;
     }
+
     public void setController(Controller controller) {
         this.controller = controller;
+    }
+
+    public View() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+            ExceptionHandler.log(e);
+        }
     }
 
     @Override
@@ -27,7 +36,7 @@ public class View extends JFrame implements ActionListener {
 
     }
 
-    public void init(){
+    public void init() {
         initGui();
         FrameListener frameListener = new FrameListener(this);
         addWindowListener(frameListener);
@@ -35,37 +44,47 @@ public class View extends JFrame implements ActionListener {
         setVisible(true);
     }
 
-    public void initGui(){
+    public void initGui() {
         initMenuBar();
         initEditor();
         pack();
     }
-    public void initMenuBar(){
 
+    public void initMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+
+        MenuHelper.initFileMenu(this, menuBar);
+        MenuHelper.initEditMenu(this, menuBar);
+        MenuHelper.initStyleMenu(this, menuBar);
+        MenuHelper.initAlignMenu(this, menuBar);
+        MenuHelper.initColorMenu(this, menuBar);
+        MenuHelper.initFontMenu(this, menuBar);
+        MenuHelper.initHelpMenu(this, menuBar);
+
+        getContentPane().add(menuBar, BorderLayout.NORTH);
     }
 
-    public void initEditor(){
+    public void initEditor() {
         htmlTextPane.setContentType("text/html");
         JScrollPane scrollPane = new JScrollPane(htmlTextPane);
         tabbedPane.add("HTML", scrollPane); // adding 1st tab
 
         JScrollPane scrollPane1 = new JScrollPane(plainTextPane);
-        tabbedPane.add("Текст", scrollPane1);// adding 2nd tab
+        tabbedPane.add("Text", scrollPane1);// adding 2nd tab
 
-        tabbedPane.setPreferredSize(new Dimension(300,300));
+        tabbedPane.setPreferredSize(new Dimension(600, 300));
 
         TabbedPaneChangeListener listener = new TabbedPaneChangeListener(this);
         tabbedPane.addChangeListener(listener);
 
         getContentPane().add(tabbedPane, BorderLayout.CENTER);
+    }
+
+    public void selectedTabChanged() {
 
     }
 
-    public void selectedTabChanged(){
-
-    }
-
-    public void exit(){
+    public void exit() {
         controller.exit();
     }
 }
