@@ -2,8 +2,13 @@ package app;
 
 import app.listeners.FrameListener;
 import app.listeners.TabbedPaneChangeListener;
+import app.listeners.UndoListener;
 
 import javax.swing.*;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,12 +16,19 @@ import java.awt.event.ActionListener;
 public class View extends JFrame implements ActionListener {
     private Controller controller;
 
+    private UndoManager undoManager = new UndoManager();
+    private UndoListener undoListener = new UndoListener(undoManager);
+
     private JTabbedPane tabbedPane = new JTabbedPane();
     private JTextPane htmlTextPane = new JTextPane();
     private JEditorPane plainTextPane = new JEditorPane();
 
     public Controller getController() {
         return controller;
+    }
+
+    public UndoListener getUndoListener() {
+        return undoListener;
     }
 
     public void setController(Controller controller) {
@@ -81,6 +93,56 @@ public class View extends JFrame implements ActionListener {
     }
 
     public void selectedTabChanged() {
+
+    }
+
+    public void redo() {
+        try {
+            undoManager.redo();
+        } catch (CannotRedoException e) {
+            ExceptionHandler.log(e);
+        }
+    }
+
+    public void undo() {
+        try {
+            undoManager.undo();
+        } catch (CannotUndoException e) {
+            ExceptionHandler.log(e);
+        }
+    }
+
+    public boolean canRedo() {
+        return undoManager.canRedo();
+    }
+
+    public boolean canUndo() {
+        return undoManager.canUndo();
+    }
+
+    public void resetUndo() {
+        undoManager.discardAllEdits();
+    }
+
+    public boolean isHtmlTabSelected() {
+        int currentTab = tabbedPane.getSelectedIndex();
+        return currentTab == 0;
+    }
+
+    public void selectHtmlTab() {
+        tabbedPane.setSelectedIndex(0);// choosing html tab
+        resetUndo();
+        ;
+    }
+
+    public void update() {
+        HTMLDocument document = controller.getDocument();//getting data from Model
+        htmlTextPane.setDocument(document);//setting HTML tab with data
+    }
+
+    public void showAbout() {
+        JOptionPane.showMessageDialog(tabbedPane, "HTML editor by Hermix-art \\u00a9",
+                "About", JOptionPane.INFORMATION_MESSAGE);
 
     }
 
