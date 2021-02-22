@@ -45,7 +45,28 @@ public class View extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        String command = e.getActionCommand();
 
+        switch (command) {
+            case "New":
+                controller.createNewDocument();
+                break;
+            case "Open":
+                controller.openDocument();
+                break;
+            case "Save":
+                controller.saveDocument();
+                break;
+            case "Save as...":
+                controller.saveDocumentAs();
+                break;
+            case "Exit":
+                controller.exit();
+                break;
+            case "About":
+                showAbout();
+                break;
+        }
     }
 
     public void init() {
@@ -92,7 +113,16 @@ public class View extends JFrame implements ActionListener {
         getContentPane().add(tabbedPane, BorderLayout.CENTER);
     }
 
-    public void selectedTabChanged() {
+    public void selectedTabChanged() { //invokes when tab changes
+        int selectedTab = tabbedPane.getSelectedIndex(); // when 1st tab: uploading text to html, using controller
+        if (selectedTab == 0) {
+            String text = plainTextPane.getText();
+            controller.setPlainText(text);
+        } else if (selectedTab == 1) {// when 2st tab: uploading text to text tab, using controller
+            String text = controller.getPlainText();
+            plainTextPane.setText(text);
+        }
+        resetUndo();
 
     }
 
@@ -132,7 +162,6 @@ public class View extends JFrame implements ActionListener {
     public void selectHtmlTab() {
         tabbedPane.setSelectedIndex(0);// choosing html tab
         resetUndo();
-        ;
     }
 
     public void update() {
@@ -141,9 +170,8 @@ public class View extends JFrame implements ActionListener {
     }
 
     public void showAbout() {
-        JOptionPane.showMessageDialog(tabbedPane, "HTML editor by Hermix-art \\u00a9",
+        JOptionPane.showMessageDialog(tabbedPane, "HTML editor by Hermix-art \u00a9",
                 "About", JOptionPane.INFORMATION_MESSAGE);
-
     }
 
     public void exit() {

@@ -1,12 +1,10 @@
 package app;
 
+import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 
 public class Controller {
     private View view;
@@ -17,7 +15,7 @@ public class Controller {
         return document;
     }
 
-    public Controller(View view){
+    public Controller(View view) {
         this.view = view;
     }
 
@@ -42,34 +40,112 @@ public class Controller {
         view.update();
     }
 
-    public void setPlainText(String text){ // writes text with HTML tags to document
+    public void setPlainText(String text) { // writes text with HTML tags to document
         resetDocument();
-        StringReader reader =  new StringReader(text);
+        StringReader reader = new StringReader(text);
 
         HTMLEditorKit htmlEditorKit = new HTMLEditorKit();
         try {
-            htmlEditorKit.read(reader, document,0);
+            htmlEditorKit.read(reader, document, 0);
         } catch (IOException | BadLocationException e) {
             ExceptionHandler.log(e);
         }
 
     }
-    public String getPlainText(){// reads text with HTML tags from document
+
+    public String getPlainText() {// reads text with HTML tags from document
         StringWriter writer = new StringWriter();
 
         HTMLEditorKit htmlEditorKit = new HTMLEditorKit();
         try {
-            htmlEditorKit.write(writer, document,0,document.getLength());
+            htmlEditorKit.write(writer, document, 0, document.getLength());
         } catch (IOException | BadLocationException e) {
             ExceptionHandler.log(e);
         }
         return writer.toString();
     }
 
-    public void init(){
-
+    public void init() {
+        createNewDocument();
     }
-    public void exit(){
+
+    public void createNewDocument() {
+        view.selectHtmlTab();
+        resetDocument();
+        view.setTitle("HTML editor");
+        currentFile = null;
+    }
+
+    public void openDocument() {
+        File selectedFile;
+
+        view.selectHtmlTab();
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new HTMLFileFilter());
+
+        if (fileChooser.showOpenDialog(view) == JFileChooser.APPROVE_OPTION) {
+            selectedFile = fileChooser.getSelectedFile();
+            currentFile = selectedFile;
+
+            resetDocument();
+
+            view.setTitle(currentFile.getName());
+
+            try {
+                FileReader fileReader = new FileReader(currentFile);
+                HTMLEditorKit editorKit = new HTMLEditorKit();
+                editorKit.read(fileReader, document, 0);
+            } catch (IOException | BadLocationException e) {
+                ExceptionHandler.log(e);
+            }
+
+            view.resetUndo();
+        }
+    }
+
+    public void saveDocument() {
+        view.selectHtmlTab();
+
+        if (currentFile == null) {
+            saveDocumentAs();
+        } else {
+            try {
+                FileWriter fileWriter = new FileWriter(currentFile);
+                HTMLEditorKit htmlEditorKit = new HTMLEditorKit();
+                htmlEditorKit.write(fileWriter, document, 0, document.getLength());
+            } catch (IOException | BadLocationException e) {
+                ExceptionHandler.log(e);
+            }
+        }
+    }
+
+    public void saveDocumentAs() {
+        File selectedFile;
+
+        view.selectHtmlTab();
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new HTMLFileFilter());// shows only html and htm, and directories
+
+
+        if (fileChooser.showSaveDialog(view) == JFileChooser.APPROVE_OPTION) {
+
+            selectedFile = fileChooser.getSelectedFile();
+            currentFile = selectedFile;
+            view.setTitle(currentFile.getName());
+
+            try {
+                FileWriter fileWriter = new FileWriter(currentFile);
+                HTMLEditorKit htmlEditorKit = new HTMLEditorKit();
+                htmlEditorKit.write(fileWriter, document, 0, document.getLength());// saving to chosen file
+            } catch (IOException | BadLocationException e) {
+                ExceptionHandler.log(e); // logging so that not to over program, but write info to console
+            }
+        }
+    }
+
+    public void exit() {
         System.exit(0);
     }
 }
